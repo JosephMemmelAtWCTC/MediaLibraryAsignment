@@ -10,38 +10,44 @@ string readWriteFilePath = Directory.GetCurrentDirectory() + (IS_UNIX ? "/" : "\
 NLog.Logger logger = LogManager.Setup().LoadConfigurationFromFile(loggerPath).GetCurrentClassLogger();
 logger.Info("Main program is running and log mager is started, program is running on a " + (IS_UNIX ? "" : "non-") + "unix-based device.\n");
 
+// Scrub file TODO: Move into option
+string scrubbedFile = FileScrubber.ScrubMovies("movies.csv", logger);
+logger.Info(scrubbedFile);
 
-Movie movie = new Movie
-{
-    mediaId = 123,
-    title = "Greatest Movie Ever, The (2023)",
-    director = "Jeff Grissom",
-    // timespan (hours, minutes, seconds)
-    runningTime = new TimeSpan(2, 21, 23),
-    genres = { "Comedy", "Romance" }
-};
+MovieFile movieFile = new MovieFile(scrubbedFile, logger);
 
-Album album = new Album
-{
-    mediaId = 321,
-    title = "Greatest Album Ever, The (2020)",
-    artist = "Jeff's Awesome Band",
-    recordLabel = "Universal Music Group",
-    genres = { "Rock" }
-};
+// Movie movie = new Movie
+// {
+//     mediaId = 123,
+//     title = "Greatest Movie Ever, The (2023)",
+//     director = "Jeff Grissom",
+//     // timespan (hours, minutes, seconds)
+//     runningTime = new TimeSpan(2, 21, 23),
+//     genres = { "Comedy", "Romance" }
+// };
 
-Book book = new Book
-{
-    mediaId = 111,
-    title = "Super Cool Book",
-    author = "Jeff Grissom",
-    pageCount = 101,
-    publisher = "",
-    genres = { "Suspense", "Mystery" }
-};
+// Album album = new Album
+// {
+//     mediaId = 321,
+//     title = "Greatest Album Ever, The (2020)",
+//     artist = "Jeff's Awesome Band",
+//     recordLabel = "Universal Music Group",
+//     genres = { "Rock" }
+// };
 
-Console.WriteLine(movie.Display());
-Console.WriteLine(album.Display());
-Console.WriteLine(book.Display());
+// Book book = new Book
+// {
+//     mediaId = 111,
+//     title = "Super Cool Book",
+//     author = "Jeff Grissom",
+//     pageCount = 101,
+//     publisher = "",
+//     genres = { "Suspense", "Mystery" }
+// };
+
+// Console.WriteLine(movie.Display());
+// Console.WriteLine(album.Display());
+// Console.WriteLine(book.Display());
 
 logger.Info("Program ended");
+
