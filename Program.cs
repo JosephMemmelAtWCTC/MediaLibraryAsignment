@@ -8,13 +8,16 @@ string readWriteFilePath = Directory.GetCurrentDirectory() + (IS_UNIX ? "/" : "\
 
 // Create instance of the Logger
 NLog.Logger logger = LogManager.Setup().LoadConfigurationFromFile(loggerPath).GetCurrentClassLogger();
-logger.Info("Main program is running and log mager is started, program is running on a " + (IS_UNIX ? "" : "non-") + "unix-based device.");
+logger.Info("Main program is running and log mager is started, program is running on a " + (IS_UNIX ? "" : "non-") + "unix-based device.\n");
 
 
 Movie movie = new Movie
 {
     mediaId = 123,
     title = "Greatest Movie Ever, The (2023)",
+    director = "Jeff Grissom",
+    // timespan (hours, minutes, seconds)
+    runningTime = new TimeSpan(2, 21, 23),
     genres = { "Comedy", "Romance" }
 };
 
