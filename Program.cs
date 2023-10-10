@@ -1,20 +1,16 @@
 ﻿using NLog;
 
-const bool IS_UNIX = true;
-
-string loggerPath = Directory.GetCurrentDirectory() + (IS_UNIX ? "/" : "\\") + "nlog.config";
-string readWriteFilePath = Directory.GetCurrentDirectory() + (IS_UNIX ? "/" : "\\") + "Tickets.csv";
-
-
 // Create instance of the Logger
-NLog.Logger logger = LogManager.Setup().LoadConfigurationFromFile(loggerPath).GetCurrentClassLogger();
-logger.Info("Main program is running and log mager is started, program is running on a " + (IS_UNIX ? "" : "non-") + "unix-based device.\n");
+NLog.Logger logger = UserInteractions.getLogger();
+logger.Info("Main program is running and log mager is started, program is running on a " + (UserInteractions.IS_UNIX ? "" : "non-") + "unix-based device.\n");
 
 // Scrub file TODO: Move into option
 string scrubbedFile = FileScrubber.ScrubMovies("movies.csv", logger);
 logger.Info(scrubbedFile);
 
 MovieFile movieFile = new MovieFile(scrubbedFile, logger);
+
+Console.WriteLine("--"+UserInteractions.userCreatedIntObtainer("Please enter an Id ", -50, 100, true, 42));
 
 // Movie movie = new Movie
 // {

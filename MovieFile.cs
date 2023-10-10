@@ -64,13 +64,15 @@ public class MovieFile
             }
             // close file when done
             sr.Close();
-            logger.Info("Movies in file {Count}", Movies.Count);
+            logger.Info($"Movies in file ({Movies.Count})");
         }
         catch (Exception ex)
         {
             logger.Error(ex.Message);
         }
     }
+
+    
 
     // public method
     public bool isUniqueTitle(string title)
