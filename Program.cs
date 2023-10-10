@@ -21,6 +21,16 @@ Movie movie = new Movie
     genres = { "Comedy", "Romance" }
 };
 
+Album album = new Album
+{
+    mediaId = 321,
+    title = "Greatest Album Ever, The (2020)",
+    artist = "Jeff's Awesome Band",
+    recordLabel = "Universal Music Group",
+    genres = { "Rock" }
+};
+
 Console.WriteLine(movie.Display());
+Console.WriteLine(album.Display());
 
 logger.Info("Program ended");
