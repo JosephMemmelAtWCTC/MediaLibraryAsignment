@@ -85,7 +85,7 @@ public class MovieFile
         return true;
     }
 
-    public void AddMovie(Movie movie)
+    public bool AddMovie(Movie movie)
     {
         try
         {
@@ -105,6 +105,8 @@ public class MovieFile
         catch (Exception ex)
         {
             logger.Error(ex.Message);
+            return false;
         }
+        return true;
     }
 }

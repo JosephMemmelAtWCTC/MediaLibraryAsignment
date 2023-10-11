@@ -4,6 +4,7 @@ using NLog;
 */
 public sealed class UserInteractions{ //Sealed to prevent inheritance, set up as a singleton
     public const bool IS_UNIX = true;
+    public const int PRINTOUT_RESULTS_MAX_TERMINAL_SPACE_HEIGHT = 1_000; //Tested, >~ 1,000 line before removal, use int.MaxValue for infinity, int's length is max for used lists
 
     static string loggerPath = Directory.GetCurrentDirectory() + (IS_UNIX ? "/" : "\\") + "nlog.config";
     static string readWriteFilePath = Directory.GetCurrentDirectory() + (IS_UNIX ? "/" : "\\") + "Tickets.csv";
@@ -22,11 +23,9 @@ public sealed class UserInteractions{ //Sealed to prevent inheritance, set up as
 // SINGLETON PATTERN END
 
 
-    public static NLog.Logger getLogger(){
-        return logger;
-    }
+    public static NLog.Logger getLogger(){ return logger; }
 
-    static string optionsSelector(string[] options)
+    public static string OptionsSelector(string[] options)
     {
         string userInput;
         int selectedNumber;
@@ -73,7 +72,7 @@ public sealed class UserInteractions{ //Sealed to prevent inheritance, set up as
         return options[cleanedListIndexs[selectedNumber - 1]];
     }
 
-    static string userCreatedStringObtainer(string message, int minimunCharactersAllowed, bool showMinimum, bool keepRaw)
+    public static string UserCreatedStringObtainer(string message, int minimunCharactersAllowed, bool showMinimum, bool keepRaw)
     {
         if (minimunCharactersAllowed < 0)
         {
@@ -104,10 +103,10 @@ public sealed class UserInteractions{ //Sealed to prevent inheritance, set up as
         return userInput;
     }
 
-    public static int userCreatedIntObtainer(string message, int minValue, int maxValue, bool showRange){
+    public static int UserCreatedIntObtainer(string message, int minValue, int maxValue, bool showRange){
         return userCreatedIntObtainer(message, minValue, maxValue, showRange, "");
     }
-    public static int userCreatedIntObtainer(string message, int minValue, int maxValue, bool showRange, int defaultValue){
+    public static int UserCreatedIntObtainer(string message, int minValue, int maxValue, bool showRange, int defaultValue){
         return userCreatedIntObtainer(message, minValue, maxValue, showRange, defaultValue.ToString());
     }
     private static int userCreatedIntObtainer(string message, int minValue, int maxValue, bool showRange, string defaultValue){//=""){
@@ -157,4 +156,14 @@ public sealed class UserInteractions{ //Sealed to prevent inheritance, set up as
         }while(userInputRaw == null);
         return userChoosenInteger;
     }
+
+    // public void PrintMediaList(List<Media> allMedia){
+    public static void PrintMediaList<T>(List<T> allMedia) where T : Media{
+        foreach(var mediaItem in allMedia)
+        {
+            Console.WriteLine(mediaItem.Display());
+        }
+    }
+
+
 }
