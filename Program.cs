@@ -1,9 +1,5 @@
 ﻿using NLog;
 
-const string DELIMETER_1 = ",";
-const string DELIMETER_2 = "|";
-const string START_END_SUMMARY_WITH_DELIMETER1_INDICATOR = "\"";
-
 // Create instance of the Logger
 NLog.Logger logger = UserInteractions.getLogger();
 logger.Info("Main program is running and log mager is started, program is running on a " + (UserInteractions.IS_UNIX ? "" : "non-") + "unix-based device.\n");
@@ -52,7 +48,6 @@ do
         {
             logger.Warn($"Duplicate movie record on movie \"{newMovie.title}\" with id \"{newMovie.mediaId}\". Not adding to records.");
         }
-
     }
     else
     {
@@ -72,7 +67,7 @@ Movie userCreateNewMovie(){
         director = "Jeff Grissom",
         // timespan (hours, minutes, seconds)
         runningTime = new TimeSpan(2, 21, 23),
-        genres = { "Comedy", "Romance" }
+        genres = UserInteractions.RepeatingGenreOptionsSelector(false, false)
     };
 }
 

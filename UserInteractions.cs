@@ -6,6 +6,8 @@ public sealed class UserInteractions{ //Sealed to prevent inheritance, set up as
     public const bool IS_UNIX = true;
     public const int PRINTOUT_RESULTS_MAX_TERMINAL_SPACE_HEIGHT = 1_000; //Tested, >~ 1,000 line before removal, use int.MaxValue for infinity, int's length is max for used lists
 
+    static public Media.GENRES[] ALL_MEDIA_GENRES = (Media.GENRES[])Enum.GetValues(typeof(Media.GENRES));
+
     static string loggerPath = Directory.GetCurrentDirectory() + (IS_UNIX ? "/" : "\\") + "nlog.config";
     static string readWriteFilePath = Directory.GetCurrentDirectory() + (IS_UNIX ? "/" : "\\") + "Tickets.csv";
     static NLog.Logger logger;
@@ -156,6 +158,52 @@ public sealed class UserInteractions{ //Sealed to prevent inheritance, set up as
         }while(userInputRaw == null);
         return userChoosenInteger;
     }
+
+    public static List<Media.GENRES> RepeatingGenreOptionsSelector(bool exclusivity, bool includeErrorEnum){
+        string[] remainingGenresAsStrings = new string[ALL_MEDIA_GENRES.Length + (includeErrorEnum? 1 : 0)]; // -1 to remove error enum but then +1 for the exit option
+
+        List<Media.GENRES> selectedGenres = new List<Media.GENRES>(){};
+        
+        string genreSelectedStr = "";
+
+        // Build remainingGenresAsStrings
+        for (int i = 0; i < ALL_MEDIA_GENRES.Length; i++)
+        {
+            remainingGenresAsStrings[i] = Media.GenresEnumToString(ALL_MEDIA_GENRES[i]);
+        }
+        remainingGenresAsStrings[remainingGenresAsStrings.Length - 1] = "Done entering genres";
+
+        do{
+            genreSelectedStr = OptionsSelector(remainingGenresAsStrings);
+            for (int i = 0; i < remainingGenresAsStrings.Length; i++)
+            {
+                if (genreSelectedStr == remainingGenresAsStrings[i])
+                {
+                    if (genreSelectedStr == remainingGenresAsStrings[remainingGenresAsStrings.Length - 1])
+                    { //Last item was added just above as not an enum, but to exit
+                        genreSelectedStr = null; //Inform that do-while is over
+                    }
+                    else if ( exclusivity && genreSelectedStr == Media.GenresEnumToString(Media.GENRES.NO_GENRES_LISTED))
+                    { //Exit early that none are listed
+                        selectedGenres.Add(Media.GENRES.NO_GENRES_LISTED);//Should be the only element
+                        genreSelectedStr = null; //Inform that do-while is over
+                    }
+                    else
+                    {
+                        selectedGenres.Add(Media.GetGenreEnumFromString(genreSelectedStr));
+                    }
+                    remainingGenresAsStrings[i] = null; //Blank options are removed from options selector
+                    break;
+                }
+            }
+            if(!exclusivity){
+                remainingGenresAsStrings[remainingGenresAsStrings.Length - 2] = null; //Remove no genres listed on the first round if exclusive
+            }
+        } while (genreSelectedStr != null); //Last index is done option
+
+        return selectedGenres;
+    }
+
 
     // public void PrintMediaList(List<Media> allMedia){
     public static void PrintMediaList<T>(List<T> allMedia) where T : Media{

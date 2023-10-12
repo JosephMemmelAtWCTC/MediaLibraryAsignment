@@ -34,7 +34,7 @@ public class MovieFile
                     string[] movieDetails = line.Split(',');
                     movie.mediaId = UInt64.Parse(movieDetails[0]);
                     movie.title = movieDetails[1];
-                    movie.genres = movieDetails[2].Split('|').ToList();
+                    movie.genres = movieDetails[2].Split('|').ToList().Select(genreStr => Media.GetGenreEnumFromString(genreStr)).ToList();
                     movie.director = movieDetails[3];
                     movie.runningTime = TimeSpan.Parse(movieDetails[4]);
                 }
@@ -54,7 +54,7 @@ public class MovieFile
                     // split the remaining string based on commas
                     string[] details = line.Split(',');
                     // the first item in the array should be genres 
-                    movie.genres = details[0].Split('|').ToList();
+                    movie.genres = details[0].Split('|').ToList().Select(genreStr => Media.GetGenreEnumFromString(genreStr)).ToList();
                     // if there is another item in the array it should be director
                     movie.director = details[1];
                     // if there is another item in the array it should be run time

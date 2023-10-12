@@ -1,14 +1,18 @@
 public abstract class Media
 {
+    public const string DELIMETER_1 = ",";
+    public const string DELIMETER_2 = "|";
+    public const string START_END_SUMMARY_WITH_DELIMETER1_INDICATOR = "\"";
+
     // public properties
     public UInt64 mediaId { get; set; }
     public string title { get; set; }
-    public List<string> genres { get; set; }
+    public List<GENRES> genres { get; set; }
 
     // constructor
     public Media()
     {
-        genres = new List<string>();
+        genres = new List<GENRES>();
     }
 
     // public method
@@ -25,12 +29,12 @@ public abstract class Media
         }
         toSortAsStrings.Sort();
         for(int i=0; i<convertedBackToENUM.Length; i++){
-            convertedBackToENUM[i] = GetEnumFromString(toSortAsStrings[i]);
+            convertedBackToENUM[i] = GetGenreEnumFromString(toSortAsStrings[i]);
         }
         return convertedBackToENUM;
     }
 
-    public static GENRES GetEnumFromString(string genreStr)
+    public static GENRES GetGenreEnumFromString(string genreStr)
     {
         switch (genreStr)
         {
