@@ -58,15 +58,19 @@ do
 
 
 Movie userCreateNewMovie(){
-    string movieTitle = UserInteractions.UserCreatedStringObtainer("Please enter the title of the new movie", 1, true, false);
+    string movieTitle = UserInteractions.UserCreatedStringObtainer("Please enter the title of the new movie", 1, false, false);
 
     return new Movie
     {
         mediaId = 123,
         title = movieTitle,
-        director = "Jeff Grissom",
+        director = UserInteractions.UserCreatedStringObtainer("Please enter the director's name", 1, false, false),
         // timespan (hours, minutes, seconds)
-        runningTime = new TimeSpan(2, 21, 23),
+        runningTime = new TimeSpan(
+            UserInteractions.UserCreatedIntObtainer("Please enter the movie's runtime (hours)", 0, 24/*int.MaxValue*/, false, 0),
+            UserInteractions.UserCreatedIntObtainer("Please enter the movie's runtime (minutes)", 0, 59, false, 0),
+            UserInteractions.UserCreatedIntObtainer("Please enter the movie's runtime (seconds)", 0, 59, false, 0)
+            ),
         genres = UserInteractions.RepeatingGenreOptionsSelector(false, false)
     };
 }

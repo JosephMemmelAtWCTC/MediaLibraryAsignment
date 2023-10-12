@@ -128,7 +128,6 @@ public sealed class UserInteractions{ //Sealed to prevent inheritance, set up as
                 if(defaultValue != null && userInputRaw.Length == 0) //Was blank and allowed
                 {
                     userChoosenInteger = defaultAsInt;
-                                        Console.WriteLine("A");
                 }
                 else if(defaultValue == null && userInputRaw.Length == 0)
                 {
@@ -145,9 +144,7 @@ public sealed class UserInteractions{ //Sealed to prevent inheritance, set up as
                     logger.Error($"Your choosen integer choice was above \"{maxValue}\", the range is ({minValue} to {maxValue}), please try again.");
                     userInputRaw = null; //Above max
                 }else{
-                    Console.WriteLine("+");
                 }
-                    Console.WriteLine("D");
             }
             else
             {

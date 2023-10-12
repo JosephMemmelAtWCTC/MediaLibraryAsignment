@@ -18,7 +18,7 @@ public abstract class Media
     // public method
     public virtual string Display()
     {
-        return $"Id: {mediaId}\nTitle: {title}\nGenres: {string.Join(", ", genres)}\n";
+        return $"Id: {mediaId}\nTitle: {title}\nGenres: {string.Join(", ", genres.Select(genre => Media.GenresEnumToString(genre)).ToList())}\n";
     }
 
     public static GENRES[] SortGenres(List<GENRES> toSortGenres){
@@ -38,52 +38,53 @@ public abstract class Media
     {
         switch (genreStr)
         {
-            case "Action": return GENRES.ACTION;
-            case "Adventure": return GENRES.ADVENTURE;
-            case "Animation": return GENRES.ANIMATION;
-            case "Children's": return GENRES.CHILDRENS;
-            case "Comedy": return GENRES.COMEDY;
-            case "Crime": return GENRES.CRIME;
+            case "Action":      return GENRES.ACTION;
+            case "Adventure":   return GENRES.ADVENTURE;
+            case "Animation":   return GENRES.ANIMATION;
+            case "Children's":  return GENRES.CHILDRENS;
+            case "Comedy":      return GENRES.COMEDY;
+            case "Crime":       return GENRES.CRIME;
             case "Documentary": return GENRES.DOCUMENTARY;
-            case "Drama": return GENRES.DRAMA;
-            case "Fantasy": return GENRES.FANTASY;
-            case "Film-Noir": return GENRES.FILM_NOIR;
-            case "Horror": return GENRES.HORROR;
-            case "Musical": return GENRES.MUSICAL;
-            case "Mystery": return GENRES.MYSTERY;
-            case "Romance": return GENRES.ROMANCE;
-            case "Sci-Fi": return GENRES.SCI_FI;
-            case "Thriller": return GENRES.THRILLER;
-            case "War": return GENRES.WAR;
-            case "Western": return GENRES.WESTERN;
+            case "Drama":       return GENRES.DRAMA;
+            case "Fantasy":     return GENRES.FANTASY;
+            case "Film-Noir":   return GENRES.FILM_NOIR;
+            case "Horror":      return GENRES.HORROR;
+            case "Musical":     return GENRES.MUSICAL;
+            case "Mystery":     return GENRES.MYSTERY;
+            case "Romance":     return GENRES.ROMANCE;
+            case "Sci-Fi":      return GENRES.SCI_FI;
+            case "Thriller":    return GENRES.THRILLER;
+            case "War":         return GENRES.WAR;
+            case "Western":     return GENRES.WESTERN;
             case "(no genres listed)": return GENRES.NO_GENRES_LISTED;
-            default: return GENRES.ERROR_NOT_A_VALID_GENRE;
+            case "":                   return GENRES.NO_GENRES_LISTED; //Use so when calling a blank that it will be treated as none listed
+            default:                   return GENRES.ERROR_NOT_A_VALID_GENRE;
         }
     }
     public static string GenresEnumToString(GENRES genre)
     {
         switch (genre)
         {
-            case GENRES.ACTION: return "Action";
-            case GENRES.ADVENTURE: return "Adventure";
-            case GENRES.ANIMATION: return "Animation";
-            case GENRES.CHILDRENS: return "Children's";
-            case GENRES.COMEDY: return "Comedy";
-            case GENRES.CRIME: return "Crime";
+            case GENRES.ACTION:      return "Action";
+            case GENRES.ADVENTURE:   return "Adventure";
+            case GENRES.ANIMATION:   return "Animation";
+            case GENRES.CHILDRENS:   return "Children's";
+            case GENRES.COMEDY:      return "Comedy";
+            case GENRES.CRIME:       return "Crime";
             case GENRES.DOCUMENTARY: return "Documentary";
-            case GENRES.DRAMA: return "Drama";
-            case GENRES.FANTASY: return "Fantasy";
-            case GENRES.FILM_NOIR: return "Film-Noir";
-            case GENRES.HORROR: return "Horror";
-            case GENRES.MUSICAL: return "Musical";
-            case GENRES.MYSTERY: return "Mystery";
-            case GENRES.ROMANCE: return "Romance";
-            case GENRES.SCI_FI: return "Sci-Fi";
-            case GENRES.THRILLER: return "Thriller";
-            case GENRES.WAR: return "War";
-            case GENRES.WESTERN: return "Western";
+            case GENRES.DRAMA:       return "Drama";
+            case GENRES.FANTASY:     return "Fantasy";
+            case GENRES.FILM_NOIR:   return "Film-Noir";
+            case GENRES.HORROR:      return "Horror";
+            case GENRES.MUSICAL:     return "Musical";
+            case GENRES.MYSTERY:     return "Mystery";
+            case GENRES.ROMANCE:     return "Romance";
+            case GENRES.SCI_FI:      return "Sci-Fi";
+            case GENRES.THRILLER:    return "Thriller";
+            case GENRES.WAR:         return "War";
+            case GENRES.WESTERN:     return "Western";
             case GENRES.NO_GENRES_LISTED: return "(no genres listed)";
-            default: return "ERROR: NOT A VALID GENRE";
+            default:                      return "ERROR: NOT A VALID GENRE";
         }
     }
 
@@ -118,7 +119,7 @@ public class Movie : Media
     public TimeSpan runningTime { get; set; }
     public override string Display()
     {
-        return $"Id: {mediaId}\nTitle: {title}\nDirector: {director}\nRun time: {runningTime}\nGenres: {string.Join(", ", genres)}\n";
+        return $"Id: {mediaId}\nTitle: {title}\nDirector: {director}\nRun time: {runningTime}\nGenres: {string.Join(", ", genres.Select(genre => Media.GenresEnumToString(genre)).ToList())}\n";
     }
 }
 
@@ -129,7 +130,7 @@ public class Album : Media
 
     public override string Display()
     {
-        return $"Id: {mediaId}\nTitle: {title}\nArtist: {artist}\nLabel: {recordLabel}\nGenres: {string.Join(", ", genres)}\n";
+        return $"Id: {mediaId}\nTitle: {title}\nArtist: {artist}\nLabel: {recordLabel}\nGenres: {string.Join(", ", genres.Select(genre => Media.GenresEnumToString(genre)).ToList())}\n";
     }
 }
 
@@ -141,6 +142,6 @@ public class Book : Media
 
     public override string Display()
     {
-        return $"Id: {mediaId}\nTitle: {title}\nAuthor: {author}\nPages: {pageCount}\nPublisher: {publisher}\nGenres: {string.Join(", ", genres)}\n";
+        return $"Id: {mediaId}\nTitle: {title}\nAuthor: {author}\nPages: {pageCount}\nPublisher: {publisher}\nGenres: {string.Join(", ", genres.Select(genre => Media.GenresEnumToString(genre)).ToList())}\n";
     }
 }
