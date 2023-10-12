@@ -20,6 +20,8 @@ do
     // TODO: Move to switch with integer of place value and also make not relient on index by switching to enum for efficiency
     string menuCheckCommand = UserInteractions.OptionsSelector(MAIN_MENU_OPTIONS_IN_ORDER);
 
+    logger.Info($"User choice: \"{menuCheckCommand}\"");
+
     if (menuCheckCommand == enumToStringMainMenuWorkArround(MAIN_MENU_OPTIONS.Exit))
     {//If user intends to exit the program
         logger.Info("Program quiting...");
