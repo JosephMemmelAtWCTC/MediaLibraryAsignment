@@ -95,12 +95,17 @@ public class MovieFile
             string title = movie.title.IndexOf(',') != -1 || movie.title.IndexOf('"') != -1 ? $"\"{movie.title}\"" : movie.title;
             StreamWriter sw = new StreamWriter(filePath, true);
             // write movie data to file
-            sw.WriteLine($"{movie.mediaId},{title},{string.Join("|", movie.genres)},{movie.director},{movie.runningTime}");
+            string[] cleanedUpGenres = new string[movie.genres.Count];
+            for(int i = 0; i < cleanedUpGenres.Length; i++)
+            {
+                cleanedUpGenres[i] = Media.GenresEnumToString(movie.genres[i]);
+            }
+            sw.WriteLine($"{movie.mediaId},{title},{string.Join("|",cleanedUpGenres)},{movie.director},{movie.runningTime}");
             sw.Close();
             // add movie details to List
             Movies.Add(movie);
             // log transaction
-            logger.Info("Media id {Id} added", movie.mediaId);
+            logger.Info($"Media id {movie.mediaId} added");
         }
         catch (Exception ex)
         {
