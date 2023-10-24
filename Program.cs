@@ -1,4 +1,7 @@
-﻿using NLog;
+﻿using Microsoft.Extensions.DependencyInjection;
+using NLog;
+
+Console.ForegroundColor = UserInteractions.defaultColor;
 
 // Create instance of the Logger
 NLog.Logger logger = UserInteractions.getLogger();
@@ -10,9 +13,16 @@ logger.Info(scrubbedFile);
 
 MovieFile movieFile = new MovieFile(scrubbedFile, logger);
 
-string[] MAIN_MENU_OPTIONS_IN_ORDER = { enumToStringMainMenuWorkArround(MAIN_MENU_OPTIONS.View_Movies_No_Filter),
-                                        enumToStringMainMenuWorkArround(MAIN_MENU_OPTIONS.Add_Movie),
-                                        enumToStringMainMenuWorkArround(MAIN_MENU_OPTIONS.Exit)};
+string[] MAIN_MENU_OPTIONS_IN_ORDER = { enumToStringMainMenuWorkarround(MAIN_MENU_OPTIONS.View_Movies_No_Filter),
+                                        enumToStringMainMenuWorkarround(MAIN_MENU_OPTIONS.View_Movies_Filter),
+                                        enumToStringMainMenuWorkarround(MAIN_MENU_OPTIONS.Add_Movie),
+                                        enumToStringMainMenuWorkarround(MAIN_MENU_OPTIONS.Exit)};
+
+string[] FILTER_MENU_OPTIONS_IN_ORDER = { enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS.ID),
+                                          enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS.GENRE),
+                                          enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS.DIRECTOR),
+                                          enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS.TIMESPAN),
+                                          enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS.Run_Filter)};
 
 // MAIN LOOP MENU
 do
@@ -22,19 +32,75 @@ do
 
     logger.Info($"User choice: \"{menuCheckCommand}\"");
 
-    if (menuCheckCommand == enumToStringMainMenuWorkArround(MAIN_MENU_OPTIONS.Exit))
+    if (menuCheckCommand == enumToStringMainMenuWorkarround(MAIN_MENU_OPTIONS.Exit))
     {//If user intends to exit the program
         logger.Info("Program quiting...");
         return;
     }
-    else if (menuCheckCommand == enumToStringMainMenuWorkArround(MAIN_MENU_OPTIONS.View_Movies_No_Filter))
+    else if (menuCheckCommand == enumToStringMainMenuWorkarround(MAIN_MENU_OPTIONS.View_Movies_No_Filter))
     {
         UserInteractions.PrintMediaList<Movie>(movieFile.Movies);
     }
-    // else if (menuCheckCommand == enumToStringMainMenuWorkArround(MAIN_MENU_OPTIONS.View_Movies_Filter))
-    // {
-    // }
-    else if (menuCheckCommand == enumToStringMainMenuWorkArround(MAIN_MENU_OPTIONS.Add_Movie))
+    else if (menuCheckCommand == enumToStringMainMenuWorkarround(MAIN_MENU_OPTIONS.View_Movies_Filter))
+    {
+        // Default, allow all
+
+        List<Media.GENRES> filterRequiredGenres = new List<Media.GENRES>(){ };// Default - have no genres //((Media.GENRES[])Enum.GetValues(typeof(Media.GENRES))).ToList(); //Default get all enums genre type
+
+        List<string> filterSearchStrings = new List<string>() { };
+
+        string choosenFilterOption;
+        do
+        {
+            // Display existing settings
+            Console.WriteLine("\n~<:{[ Current Filter Settings ]}:>~\n");
+            //TODO: Move created strings to only be updated when changed, not every cycle
+            string filterAllowGenresAsStr = "";
+
+            foreach(Media.GENRES allowGenre in filterRequiredGenres)
+            {
+                filterAllowGenresAsStr = $"{filterAllowGenresAsStr}, {Media.GenresEnumToString(allowGenre)}";
+            }
+            if(filterAllowGenresAsStr.Length > 2){ filterAllowGenresAsStr = filterAllowGenresAsStr.Substring(2); }
+
+            string indentStr = new string[3].Aggregate((c, n) => $"{c} "); //Blank space to make it act as a single character, needs to be 1 more then desired ammount
+            string phraseIndentStr = new string[10].Aggregate((c, n) => $"{c} "); //Blank space to make it act as a single character
+
+            string builtUpPhrases = (filterSearchStrings.Count == 0)? "" : filterSearchStrings.Aggregate((current, next) => $"{current}\n{indentStr}{phraseIndentStr}{next}");
+
+            Console.WriteLine($"{indentStr}Genres:  {filterAllowGenresAsStr}");
+            Console.WriteLine($"{indentStr}Phrases: {builtUpPhrases}");
+
+
+
+            // User chooses option
+            choosenFilterOption = UserInteractions.OptionsSelector(FILTER_MENU_OPTIONS_IN_ORDER);
+
+            if(choosenFilterOption == enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS.GENRE))
+            {
+                filterRequiredGenres = UserInteractions.RepeatingGenreOptionsSelector(true,true);
+            }
+
+        }while(choosenFilterOption != enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS.Run_Filter));
+
+        // Filter results
+        // By genre
+        List<Movie> filteredMovies = new List<Movie>();
+        bool firstFilter = true;
+        foreach(Media.GENRES genre in filterRequiredGenres)
+        {
+            if(firstFilter){
+                firstFilter = false;
+                filteredMovies = movieFile.Movies.Where(m => m.genres.Contains(genre)).ToList();
+            }else{
+                filteredMovies = filteredMovies.Where(m => m.genres.Contains(genre)).ToList(); //Tighten results
+            }
+        }
+        Console.ForegroundColor = UserInteractions.resultsColor;
+        UserInteractions.PrintMediaList(filteredMovies);
+        Console.ForegroundColor = UserInteractions.defaultColor;
+    }
+    else if (menuCheckCommand == enumToStringMainMenuWorkarround(MAIN_MENU_OPTIONS.Add_Movie))
     {
         Movie newMovie = userCreateNewMovie();//TODO: Check movie title during creation
         if (movieFile.isUniqueTitle(newMovie.title))
@@ -120,17 +186,45 @@ logger.Info("Program ended");
 
 // vvv UNUM STUFF vvv
 
-string enumToStringMainMenuWorkArround(MAIN_MENU_OPTIONS mainMenuEnum)
+string enumToStringMainMenuWorkarround(MAIN_MENU_OPTIONS mainMenuEnum)
 {
     return mainMenuEnum switch
     {
         MAIN_MENU_OPTIONS.Exit => "Quit program",
-        MAIN_MENU_OPTIONS.View_Movies_No_Filter => $"View movies on file in order (display max ammount is {UserInteractions.PRINTOUT_RESULTS_MAX_TERMINAL_SPACE_HEIGHT:N0})",
+        MAIN_MENU_OPTIONS.View_Movies_No_Filter => $"View movies on file in order (display max ammount is {UserInteractions.PRINTOUT_RESULTS_MAX_TERMINAL_SPACE_HEIGHT / 5:N0})",// Divide by 11 as 10 is the current max number of fields in a ticket and +1 for the empty spacing lines between
         MAIN_MENU_OPTIONS.View_Movies_Filter => $"Filter movies on file",
         MAIN_MENU_OPTIONS.Add_Movie => "Add new movie to file",
         _ => "ERROR"
     };
 }
+
+string enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS filterMenuEnum)
+{
+    return filterMenuEnum switch
+    {
+        FILTER_MENU_OPTIONS.ID => "Add filter tickets by id",
+        FILTER_MENU_OPTIONS.GENRE => "Modify filter tickets by genre",
+        FILTER_MENU_OPTIONS.DIRECTOR => "Select filter tickets by director",
+        FILTER_MENU_OPTIONS.TIMESPAN => "Select filter tickets by running time",
+        FILTER_MENU_OPTIONS.Run_Filter => "Run the compleated filters",
+        _ => "ERROR_FILTER_MENU_OPTION_DOES_NOT_EXIST"
+    };
+
+}
+
+// FILTER_MENU_OPTIONS stringToEnumTicketTypeWorkArround(string ticketTypeStr)
+// {
+//     return ticketTypeStr switch
+//     {
+//         "Bug/Defect" => TICKET_TYPES.Bug_Defect,
+//         "Enhancement" => TICKET_TYPES.Enhancment,
+//         "Task" => TICKET_TYPES.Task,
+//         _ => TICKET_TYPES.Bug_Defect //Default to orignal Bug/Defect when not found (should never happen if done correctly)
+//     };
+//     //TODO: Log error
+// }
+
+
 
 public enum MAIN_MENU_OPTIONS
 {
@@ -138,4 +232,13 @@ public enum MAIN_MENU_OPTIONS
     View_Movies_No_Filter,
     View_Movies_Filter,
     Add_Movie
+}
+
+public enum FILTER_MENU_OPTIONS
+{
+    ID,
+    GENRE,
+    DIRECTOR,
+    TIMESPAN,
+    Run_Filter
 }
