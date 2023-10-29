@@ -13,6 +13,7 @@ public sealed class UserInteractions{ //Sealed to prevent inheritance, set up as
     static NLog.Logger logger;
 
     public static ConsoleColor defaultColor = ConsoleColor.White;
+    public static ConsoleColor userInputColor = ConsoleColor.Yellow;
     public static ConsoleColor resultsColor = ConsoleColor.Green;
 
 // SINGLETON PATTERN START (Hope I got this right)
@@ -55,7 +56,9 @@ public sealed class UserInteractions{ //Sealed to prevent inheritance, set up as
             Console.WriteLine("Please select an option from the following...");
             Console.WriteLine(optionsTextAsStr);
             Console.Write("Please enter an option from the list: ");
+            Console.ForegroundColor = userInputColor;
             userInput = Console.ReadLine().Trim();
+            Console.ForegroundColor = defaultColor;
 
             //TODO: Move to switch without breaks instead of ifs or if-elses?
             if (!int.TryParse(userInput, out selectedNumber))
@@ -87,7 +90,9 @@ public sealed class UserInteractions{ //Sealed to prevent inheritance, set up as
         do
         {
             Console.Write($"\n{message}{(showMinimum ? $" (must contain at least {minimunCharactersAllowed} character{(minimunCharactersAllowed==1?"":"s")})" : "")}: ");
+            Console.ForegroundColor = userInputColor;
             userInput = Console.ReadLine().ToString();
+            Console.ForegroundColor = defaultColor;
             if (!keepRaw)
             {
                 userInput = userInput.Trim();
@@ -124,7 +129,9 @@ public sealed class UserInteractions{ //Sealed to prevent inheritance, set up as
         }
         do{
             Console.Write($"\n{message}{(showRange? $" ({minValue} to {maxValue})" : "")}{(defaultValue==""? "" : $" or leave blank to use \"{defaultValue}\"")}: ");
+            Console.ForegroundColor = userInputColor;
             userInputRaw = Console.ReadLine().Trim();
+            Console.ForegroundColor = defaultColor;
             if (int.TryParse(userInputRaw, out userChoosenInteger) || userInputRaw.Length == 0) //Duplicate .Length == 0 checking to have code in the same location
             {
                 if(defaultValue != null && userInputRaw.Length == 0) //Was blank and allowed
@@ -210,6 +217,41 @@ public sealed class UserInteractions{ //Sealed to prevent inheritance, set up as
         {
             Console.WriteLine(mediaItem.Display());
         }
+    }
+
+    public static string[] RepeatingOptionsSelector(string[] optionsToPickFrom){
+        string stopOption = "Done picking";
+        string[] optionsToPickFromWithStop = new string[optionsToPickFrom.Length+1];
+        for(int i = 0; i < optionsToPickFrom.Length; i++){
+            optionsToPickFromWithStop[i] = optionsToPickFrom[i];
+        }
+        optionsToPickFromWithStop[optionsToPickFromWithStop.Length-1] = stopOption;
+
+        List<string> selectedOptions = new List<string>(){};
+        
+        string optionSelectedStr = "";
+
+        do{
+            optionSelectedStr = OptionsSelector(optionsToPickFromWithStop);
+            for(int i = 0; i < optionsToPickFromWithStop.Length; i++)
+            {
+                if(optionSelectedStr == optionsToPickFromWithStop[i])
+                {
+                    if(optionSelectedStr == stopOption)//optionsToPickFromWithStop[optionsToPickFromWithStop.Length - 1])
+                    { //Last item was added just above as not an add option, but to stop
+                        optionSelectedStr = null; //Inform that do-while is over
+                    }
+                    else
+                    {
+                        selectedOptions.Add(optionSelectedStr);
+                    }
+                    optionsToPickFromWithStop[i] = null; //Blank options are removed from options selector
+                    break;
+                }
+            }
+        } while (optionSelectedStr != null); //Last index is done option
+
+        return selectedOptions.ToArray();
     }
 
 

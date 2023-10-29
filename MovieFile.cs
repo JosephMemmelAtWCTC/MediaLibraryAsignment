@@ -44,11 +44,11 @@ public class MovieFile
                     // extract the movieId
                     movie.mediaId = UInt64.Parse(line.Substring(0, idx - 1));
                     // remove movieId and first comma from string
-                    line = line.Substring(idx);
+                    line = line.Substring(idx+1);
                     // find the last quote
                     idx = line.LastIndexOf('"');
                     // extract title
-                    movie.title = line.Substring(0, idx + 1);
+                    movie.title = line.Substring(0, idx);
                     // remove title and next comma from the string
                     line = line.Substring(idx + 2);
                     // split the remaining string based on commas

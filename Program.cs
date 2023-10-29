@@ -21,7 +21,7 @@ string[] MAIN_MENU_OPTIONS_IN_ORDER = { enumToStringMainMenuWorkarround(MAIN_MEN
 string[] FILTER_MENU_OPTIONS_IN_ORDER = { enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS.ID),
                                           enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS.GENRE),
                                           enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS.DIRECTOR),
-                                          enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS.TIMESPAN),
+                                        //   enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS.TIMESPAN),
                                           enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS.Run_Filter)};
 
 // MAIN LOOP MENU
@@ -43,9 +43,8 @@ do
     }
     else if (menuCheckCommand == enumToStringMainMenuWorkarround(MAIN_MENU_OPTIONS.View_Movies_Filter))
     {
-        // Default, allow all
-
         List<Media.GENRES> filterRequiredGenres = new List<Media.GENRES>(){ };// Default - have no genres //((Media.GENRES[])Enum.GetValues(typeof(Media.GENRES))).ToList(); //Default get all enums genre type
+        List<string> filterRequiredDirectorParts = new List<string>(){ };// Default - have no director parts
 
         List<string> filterSearchStrings = new List<string>() { };
 
@@ -56,20 +55,25 @@ do
             Console.WriteLine("\n~<:{[ Current Filter Settings ]}:>~\n");
             //TODO: Move created strings to only be updated when changed, not every cycle
             string filterAllowGenresAsStr = "";
+            string filterAllowDirectorsAsStr = "";
 
-            foreach(Media.GENRES allowGenre in filterRequiredGenres)
+            foreach(Media.GENRES requiredGenre in filterRequiredGenres)
             {
-                filterAllowGenresAsStr = $"{filterAllowGenresAsStr}, {Media.GenresEnumToString(allowGenre)}";
+                filterAllowGenresAsStr = $"{filterAllowGenresAsStr}, {Media.GenresEnumToString(requiredGenre)}";
             }
             if(filterAllowGenresAsStr.Length > 2){ filterAllowGenresAsStr = filterAllowGenresAsStr.Substring(2); }
 
+            filterAllowDirectorsAsStr = (filterRequiredDirectorParts.Count < 2)? "" : filterRequiredDirectorParts.Aggregate((current,next) => $"{current}, \"{next}\"");
+
+
             string indentStr = new string[3].Aggregate((c, n) => $"{c} "); //Blank space to make it act as a single character, needs to be 1 more then desired ammount
-            string phraseIndentStr = new string[10].Aggregate((c, n) => $"{c} "); //Blank space to make it act as a single character
+            string phraseIndentStr = new string[12].Aggregate((c, n) => $"{c} "); //Blank space to make it act as a single character
 
             string builtUpPhrases = (filterSearchStrings.Count == 0)? "" : filterSearchStrings.Aggregate((current, next) => $"{current}\n{indentStr}{phraseIndentStr}{next}");
 
-            Console.WriteLine($"{indentStr}Genres:  {filterAllowGenresAsStr}");
-            Console.WriteLine($"{indentStr}Phrases: {builtUpPhrases}");
+            Console.WriteLine($"{indentStr}Genres:    {filterAllowGenresAsStr}");
+            Console.WriteLine($"{indentStr}Phrases:   {builtUpPhrases}");
+            Console.WriteLine($"{indentStr}Directors: {filterAllowDirectorsAsStr}");
 
 
 
@@ -79,6 +83,40 @@ do
             if(choosenFilterOption == enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS.GENRE))
             {
                 filterRequiredGenres = UserInteractions.RepeatingGenreOptionsSelector(true,true);
+            }
+            else if(choosenFilterOption == enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS.DIRECTOR))
+            {
+                string[] directorOptions = new string[] { "Add director keywords", "Remove director keywords", "Exit director" };
+
+                string selectedOption;
+                do{
+                    selectedOption = UserInteractions.OptionsSelector(directorOptions);
+
+                    if(selectedOption == directorOptions[1]){
+                        Console.WriteLine("Select the following to remove");
+                        string[] leftAfterRemovel = UserInteractions.RepeatingOptionsSelector(filterSearchStrings.ToArray());
+                        
+                        // filterRequiredDirectorParts = new List<string>() { }; //Reset options
+                        foreach(string phrase in leftAfterRemovel)
+                        {
+                            filterRequiredDirectorParts.Add(phrase);
+                        }
+                    }else if(selectedOption == directorOptions[0]){
+                        Console.WriteLine("Add phrases to the filter (it's case-insensitive)");
+                        string newPhrase = null;
+                        do{
+                            newPhrase = UserInteractions.UserCreatedStringObtainer("Please input a phrase to add to the search, or leave blank to exit",-1,false,true);
+                            if(newPhrase.Length == 0){
+                                newPhrase = null;
+                            }else{
+                                filterRequiredDirectorParts.Add(newPhrase);
+                            }
+                        }while(newPhrase != null);
+                    }
+                }while(selectedOption != directorOptions[directorOptions.Length-1]);
+
+                Console.WriteLine($"Current search phrases: {((filterRequiredDirectorParts.Count==0)? "" : filterRequiredDirectorParts.Aggregate((current,next) => $"{current}, {next}"))}");
+
             }
 
         }while(choosenFilterOption != enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS.Run_Filter));
@@ -91,11 +129,17 @@ do
         {
             if(firstFilter){
                 firstFilter = false;
-                filteredMovies = movieFile.Movies.Where(m => m.genres.Contains(genre)).ToList();
+                filteredMovies = movieFile.Movies.Where(m => m.genres.Contains(genre)).ToList(); //Set first results
             }else{
                 filteredMovies = filteredMovies.Where(m => m.genres.Contains(genre)).ToList(); //Tighten results
             }
         }
+        // By director
+        foreach(string directorStr in filterRequiredDirectorParts)
+        {
+            filteredMovies = filteredMovies.Where(m => m.director.Contains(directorStr)).ToList(); //Tighten results
+        }
+
         Console.ForegroundColor = UserInteractions.resultsColor;
         UserInteractions.PrintMediaList(filteredMovies);
         Console.ForegroundColor = UserInteractions.defaultColor;
@@ -194,7 +238,7 @@ string enumToStringMainMenuWorkarround(MAIN_MENU_OPTIONS mainMenuEnum)
         MAIN_MENU_OPTIONS.View_Movies_No_Filter => $"View movies on file in order (display max ammount is {UserInteractions.PRINTOUT_RESULTS_MAX_TERMINAL_SPACE_HEIGHT / 5:N0})",// Divide by 11 as 10 is the current max number of fields in a ticket and +1 for the empty spacing lines between
         MAIN_MENU_OPTIONS.View_Movies_Filter => $"Filter movies on file",
         MAIN_MENU_OPTIONS.Add_Movie => "Add new movie to file",
-        _ => "ERROR"
+        _ => "ERROR_MAIN_MENU_OPTION_DOES_NOT_EXIST"
     };
 }
 
@@ -205,7 +249,7 @@ string enumToStringFilterMenuWorkarround(FILTER_MENU_OPTIONS filterMenuEnum)
         FILTER_MENU_OPTIONS.ID => "Add filter tickets by id",
         FILTER_MENU_OPTIONS.GENRE => "Modify filter tickets by genre",
         FILTER_MENU_OPTIONS.DIRECTOR => "Select filter tickets by director",
-        FILTER_MENU_OPTIONS.TIMESPAN => "Select filter tickets by running time",
+        // FILTER_MENU_OPTIONS.TIMESPAN => "Select filter tickets by running time",
         FILTER_MENU_OPTIONS.Run_Filter => "Run the compleated filters",
         _ => "ERROR_FILTER_MENU_OPTION_DOES_NOT_EXIST"
     };
