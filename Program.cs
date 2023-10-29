@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting.Internal;
 using NLog;
 
 Console.ForegroundColor = UserInteractions.defaultColor;
@@ -75,8 +76,6 @@ do
             Console.WriteLine($"{indentStr}Phrases:   {builtUpPhrases}");
             Console.WriteLine($"{indentStr}Directors: {filterAllowDirectorsAsStr}");
 
-
-
             // User chooses option
             choosenFilterOption = UserInteractions.OptionsSelector(FILTER_MENU_OPTIONS_IN_ORDER);
 
@@ -142,6 +141,7 @@ do
 
         Console.ForegroundColor = UserInteractions.resultsColor;
         UserInteractions.PrintMediaList(filteredMovies);
+        Console.WriteLine($"There were {filteredMovies.Count} movie{((filteredMovies.Count==1)? "":"s")} that were found on file that match your search query.");
         Console.ForegroundColor = UserInteractions.defaultColor;
     }
     else if (menuCheckCommand == enumToStringMainMenuWorkarround(MAIN_MENU_OPTIONS.Add_Movie))
